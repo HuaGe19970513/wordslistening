@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/main_back"
+    tools:context=".MainActivity">
+    <TextView
+    android:layout_width="200dp"
+    android:layout_height="wrap_content"
+    android:id="@+id/tv_word"
+        android:textSize="25dp"
+        android:gravity="center"
+        android:textStyle="bold|italic"
+        android:text="Welcome"
+    android:layout_centerHorizontal="true"
+        android:background="@drawable/txt_back"
+        android:layout_above="@+id/tv_means"/>
+    <TextView
+        android:layout_width="250dp"
+        android:layout_height="320dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="40dp"
+        android:id="@+id/tv_means"
+        android:textSize="20dp"
+        android:background="#F5F0C7"
+        android:text="点击这里可开启/关闭听写模式"
+        android:gravity="center"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true" />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_means"
+        android:layout_centerHorizontal="true">
+        <Button
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginRight="40dp"
+            android:id="@+id/btn_back"
+            android:background="@drawable/back"/>
+        <Button
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginRight="40dp"
+            android:id="@+id/btn_play"
+            android:background="@drawable/play"/>
+        <Button
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:id="@+id/btn_home"
+            android:background="@drawable/home"/>
+    </LinearLayout>
+
+
+</RelativeLayout>

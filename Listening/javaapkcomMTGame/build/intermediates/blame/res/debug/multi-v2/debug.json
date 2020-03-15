@@ -1,0 +1,26 @@
+{
+    "logs": [
+        {
+            "outputFile": "D:\\document\\android\\demo\\Listening\\javaapkcomMTGame\\build\\intermediates\\res\\merged\\debug\\values_values.arsc.flat",
+            "map": [
+                {
+                    "source": "D:\\document\\android\\demo\\Listening\\javaapkcomMTGame\\src\\main\\res\\values\\strings.xml",
+                    "from": {
+                        "startLines": "4,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "122,59",
+                        "endColumns": "43,61",
+                        "endOffsets": "161,116"
+                    },
+                    "to": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,99",
+                        "endColumns": "43,61",
+                        "endOffsets": "94,156"
+                    }
+                }
+            ]
+        }
+    ]
+}

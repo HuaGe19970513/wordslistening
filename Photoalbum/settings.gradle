@@ -1,0 +1,2 @@
+rootProject.name='Photo album'
+include ':app'

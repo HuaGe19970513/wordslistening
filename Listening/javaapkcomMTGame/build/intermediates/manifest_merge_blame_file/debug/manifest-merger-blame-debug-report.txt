@@ -1,0 +1,50 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.bdqn.hr.activity"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="16"
+8-->D:\document\android\demo\Listening\javaapkcomMTGame\src\main\AndroidManifest.xml
+9        android:targetSdkVersion="29" />
+9-->D:\document\android\demo\Listening\javaapkcomMTGame\src\main\AndroidManifest.xml
+10
+11    <!-- <uses-sdk android:minSdkVersion="16" /> -->
+12    <application
+12-->D:\document\android\demo\Listening\javaapkcomMTGame\src\main\AndroidManifest.xml:9:5-23:19
+13        android:debuggable="true"
+14        android:icon="@drawable/mtamg"
+14-->D:\document\android\demo\Listening\javaapkcomMTGame\src\main\AndroidManifest.xml:10:9-39
+15        android:label="@string/app_name"
+15-->D:\document\android\demo\Listening\javaapkcomMTGame\src\main\AndroidManifest.xml:11:9-41
+16        android:testOnly="true" >
+17        <activity
+17-->D:\document\android\demo\Listening\javaapkcomMTGame\src\main\AndroidManifest.xml:12:9-19:20
+18            android:name="com.bdqn.hr.activity.LoginActivity"
+18-->D:\document\android\demo\Listening\javaapkcomMTGame\src\main\AndroidManifest.xml:13:13-42
+19            android:label="@string/app_name" >
+19-->D:\document\android\demo\Listening\javaapkcomMTGame\src\main\AndroidManifest.xml:14:13-45
+20            <intent-filter>
+20-->D:\document\android\demo\Listening\javaapkcomMTGame\src\main\AndroidManifest.xml:15:13-18:29
+21                <action android:name="android.intent.action.MAIN" />
+21-->D:\document\android\demo\Listening\javaapkcomMTGame\src\main\AndroidManifest.xml:16:17-69
+21-->D:\document\android\demo\Listening\javaapkcomMTGame\src\main\AndroidManifest.xml:16:25-66
+22
+23                <category android:name="android.intent.category.LAUNCHER" />
+23-->D:\document\android\demo\Listening\javaapkcomMTGame\src\main\AndroidManifest.xml:17:17-77
+23-->D:\document\android\demo\Listening\javaapkcomMTGame\src\main\AndroidManifest.xml:17:27-74
+24            </intent-filter>
+25        </activity>
+26        <activity android:name="com.bdqn.hr.activity.NewGame01" />
+26-->D:\document\android\demo\Listening\javaapkcomMTGame\src\main\AndroidManifest.xml:20:10-61
+26-->D:\document\android\demo\Listening\javaapkcomMTGame\src\main\AndroidManifest.xml:20:23-48
+27        <activity android:name="com.bdqn.hr.activity.GameGY" />
+27-->D:\document\android\demo\Listening\javaapkcomMTGame\src\main\AndroidManifest.xml:21:11-59
+27-->D:\document\android\demo\Listening\javaapkcomMTGame\src\main\AndroidManifest.xml:21:24-46
+28        <activity android:name="com.bdqn.hr.activity.LoadingActivity" />
+28-->D:\document\android\demo\Listening\javaapkcomMTGame\src\main\AndroidManifest.xml:22:11-67
+28-->D:\document\android\demo\Listening\javaapkcomMTGame\src\main\AndroidManifest.xml:22:24-55
+29    </application>
+30
+31</manifest>
