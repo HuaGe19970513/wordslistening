@@ -7,18 +7,22 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.huage.wordslistening.service.CacheService;
+import com.huage.wordslistening.service.PlayService;
+import com.huage.wordslistening.service.SearchService;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -34,18 +38,22 @@ public class WorkActivity extends AppCompatActivity implements View.OnClickListe
     private TextView tv_word;
     private TextView tv_means;
     private SQLiteDatabase db;
-    private String wordInfo;
     private final String DATABASE_FILENAME = "words.db";//数据库文件名称
+    private final int PLAYSERVICE_MESSAGE=101;
     private String playUnit;    //播放单元
-    private int palyId = 0;  //播放Id
-    private int playnum = 0; //点击次数
-    private int playTime = 1;
-    private int playPeriod;
-    private MediaPlayer mPlayer = new MediaPlayer();
-    private final String SPEAK_API = "http://dict.youdao.com/dictvoice?type=1&audio=";//有道英文朗读接口
     private String word;
     private String means;
+    private boolean playEnd = false ;//停止播放标志
+    private int palyId = 0;  //播放Id
+    private boolean isPlay = true; //是否可以播放
+    private int playTime = 1;
+    private int playPeriod;
+    private MediaPlayer mPlayer;
+    private final String SPEAK_API = "http://dict.youdao.com/dictvoice?type=1&audio=";//有道英文朗读接口
     private int model = 1;
+    private CacheService cache;
+    private SearchService search;
+    private PlayService play;
 
 
     @Override
@@ -101,6 +109,7 @@ public class WorkActivity extends AppCompatActivity implements View.OnClickListe
         playUnit ="unit" + String.format("%02d",b.getInt("unitNo"));
         playTime = b.getInt("playTime");
         playPeriod = b.getInt("playPeriod");
+        searchServiceInit();
 
         btn_back =  findViewById(R.id.btn_back);
         btn_play  =  findViewById(R.id.btn_play);
@@ -114,56 +123,39 @@ public class WorkActivity extends AppCompatActivity implements View.OnClickListe
         tv_word.setOnClickListener(this);
         tv_means.setOnClickListener(this);
     }
-
+    private void searchServiceInit(){
+        cache = new CacheService();
+        search = new SearchService(cache);
+        search.setDb(db);
+        search.setPlayUnit(playUnit);
+        search.setPalyId(palyId);
+        search.setPlayTime(playTime);
+        new Thread(search).start();
+    }
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_back:
+                play.stop=true;
+                search.stop = true;
                 palyId = 0;
-                playnum = 0;
-                atuoplay();
+                searchServiceInit();
+                playActivity();
                 break;
             case R.id.btn_play:
-                playnum += 1;
-                if(playnum%2!=0){  //播放
-                    atuoplay();
+                if(isPlay){  //可以播放状态
+                    playActivity();
                 }else{ //暂停
                     btn_play.setBackground(getResources().getDrawable(R.drawable.play));
-                    while (!(mPlayer!=null&&mPlayer.isPlaying())){
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    Thread.sleep(200);
-                                } catch (InterruptedException e) {
-                                    Log.e("暂停程序",e.getMessage());
-                                }
-                            }
-                        }).start();
-                    }
-                    mPlayer.pause();
+                    play.stop = true;
+                    isPlay = true;
                 }
-
                 break;
             case R.id.btn_home:
-                if(playnum%2!=0){
-                while (!(mPlayer!=null&&mPlayer.isPlaying())){
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                Thread.sleep(200);
-                            } catch (InterruptedException e) {
-                                Log.e("停止程序",e.getMessage());
-                            }
-                        }
-                    }).start();
-                }
-                mPlayer.stop();
-                }
+                play.stop=true;
+                search.stop = true;
                 palyId = 0;
-                playnum = 0;
                 btn_play.setBackground(getResources().getDrawable(R.drawable.play));
                 Intent intent = new Intent(WorkActivity.this,MainActivity.class);
                 startActivity(intent);
@@ -172,7 +164,7 @@ public class WorkActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.tv_word:
             case R.id.tv_means:
                 model *= -1;
-                if(model>0){
+                if(model<0){
                     tv_word.setTextColor(0xF5F0C7);
                     tv_means.setTextColor(0xF5F0C7);
                     Toast.makeText(mContext, "默写模式开启", Toast.LENGTH_SHORT).show();
@@ -185,59 +177,34 @@ public class WorkActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
     }
-    private void atuoplay(){
-        playActivity();
-        mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+
+    private void playActivity(){    //播放过程中将按钮切换为不可再播放状态
+        btn_play.setBackground(getResources().getDrawable(R.drawable.pause));
+        isPlay = false;
+        final Handler mHandler = new Handler(new Handler.Callback() {
             @Override
-            public void onCompletion(MediaPlayer mp) {
-                palyId += 1;
-                Log.v("播放监听程序",(palyId/playTime+1)+"");
-                playActivity();
+            public boolean handleMessage(Message msg) {
+                if (msg.what == PLAYSERVICE_MESSAGE){
+                    if (word==null||means==null||(!(word.equals("") && means.equals("")))) {
+                        word = msg.getData().getString("word");
+                        means = msg.getData().getString("means");
+                        tv_word.setText(word.replace("-", " "));
+                        tv_means.setText(means);
+                    } else {
+                        new AlertDialog.Builder(WorkActivity.this).setTitle("提醒").setMessage("播放完毕").setPositiveButton("确定", null).show();
+                        palyId = 0;
+                        play.stop = true;
+                        search.stop = true;
+                    }
+                }
+                return false;
             }
         });
+        play = new PlayService(cache);
+        play.setmHandler(mHandler);
+        play.setPlayPeriod(playPeriod);
+        play.setUrl(SPEAK_API);
+        new Thread(play).start();
     }
-    private void playActivity(){
-        btn_play.setBackground(getResources().getDrawable(R.drawable.pause));
-        String sql = "select * from "+playUnit+" where id=?";
-        Cursor cursor = db.rawQuery(sql,new String[]{(palyId/playTime+1)+""});
 
-        //  如果查找单词，显示其中文的意思
-        if (cursor.moveToFirst()) {
-
-            int id = cursor.getInt(cursor.getColumnIndex("id"));
-            word = cursor.getString(cursor.getColumnIndex("word"));
-            means = cursor.getString(cursor.getColumnIndex("means"));
-            wordInfo = "第" + id + "个单词： " + word + "："+ means;
-            Log.v("数据库查询：",wordInfo);
-            tv_word.setText(word.replace("-"," "));
-            tv_means.setText(means);
-
-            //开始播放
-            try {
-                mPlayer.reset();
-                mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                mPlayer.setDataSource(SPEAK_API+ word);
-                mPlayer.prepareAsync();
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Thread.sleep(playPeriod*1000);
-                        } catch (InterruptedException e) {
-                            Log.e("休眠程序",e.getMessage());
-                        }
-                        mPlayer.start();
-                    }
-                }).start();
-
-            }catch (Exception e){
-                Log.e("播放失败",e.getMessage());
-            }
-
-        }else {
-            new AlertDialog.Builder(this).setTitle("提醒").setMessage("播放完毕").setPositiveButton("确定", null).show();
-            palyId = 0;
-        }
-        cursor.close();
-    }
 }
